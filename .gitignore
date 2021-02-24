@@ -1,0 +1,10 @@
+/dist
+/tmp
+/out-tsc
+node_modules
+
+# IDEs and editors
+.idea
+# misc
+yarn-debug.log
+yarn-error.log
