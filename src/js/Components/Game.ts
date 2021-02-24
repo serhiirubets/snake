@@ -1,15 +1,20 @@
 import background from '../../assets/img/background.png';
 import cell from '../../assets/img/cell.png';
 import body from '../../assets/img/body.png';
+import food from '../../assets/img/food.png';
+import head from '../../assets/img/head.png';
 import {loadPicture} from "../helpers";
 import {Board} from "./Board";
 import {Snake} from "./Snake";
 import {config} from "../config";
+import {Key} from "../../types";
 
 const sprites: Record<string, string> = {
   background,
   cell,
   body,
+  food,
+  head,
 }
 
 export class Game {
@@ -25,7 +30,9 @@ export class Game {
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.board = new Board(this);
     this.initDimensions();
+    this.setEvents();
   }
+
 
   private renderBackground(): void {
     this.ctx.drawImage(this.sprites.background, (this.width - this.sprites.background.width) / 2, (this.height - this.sprites.background.height) / 2);
@@ -51,37 +58,51 @@ export class Game {
     this.preloadAssets();
   }
 
-  private render(): void {
-    // this.clearCanvas();
+  private create() {
+    this.board.create();
+    this.snake.create();
+    this.board.createFood()
+  }
 
-    Promise.all(this.preloadedAssets).then(() => {
-      this.renderBackground();
-      this.board.render();
-      this.snake.render();
-    });
+  private render(): void {
+    this.clearCanvas();
+    this.renderBackground();
+    this.board.render();
+    this.snake.render();
   }
 
   private run() {
-    window.requestAnimationFrame(() => {
+    setInterval(() => {
+      this.snake.move();
       this.render();
-    })
-
+    }, 150);
   }
 
   public start() {
     this.preload();
-    // this.setEvents();
-    this.run();
+
+    Promise.all(this.preloadedAssets).then(() => {
+      this.create();
+      this.run();
+    });
   }
 
-  private initDimensions() {
-    this.fitHeight();
 
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+  private fitWidth() {
+    this.height = Math.floor(this.width * window.innerHeight / window.innerWidth);
+    this.height = Math.min(this.height, config.game.max.height);
+    this.height = Math.max(this.height, config.game.min.height);
+    this.width = Math.round(window.innerWidth * this.height / window.innerHeight);
   }
 
   private fitHeight() {
+    this.width = Math.floor(window.innerWidth * config.game.max.height / window.innerHeight);
+    this.width = Math.min(this.width, config.game.max.width);
+    this.width = Math.max(this.width, config.game.min.width);
+    this.height = Math.floor(this.width * window.innerHeight / window.innerWidth);
+  }
+
+  private initDimensions() {
     const data = {
       maxWidth: config.game.max.width,
       maxHeight: config.game.max.height,
@@ -90,18 +111,25 @@ export class Game {
       realWidth: window.innerWidth,
       realHeight: window.innerHeight
     };
-    // realWidth / realHeight
-    // resultWidth / maxHeight
-    this.width = Math.floor(data.realWidth * data.maxHeight / data.realHeight);
 
-    // realWidth / realHeight
+    if (data.realWidth / data.realHeight > data.maxWidth / data.maxHeight) {
+      this.fitWidth();
+    } else {
+      this.fitHeight();
+    }
 
-    this.width = Math.min(this.width, data.maxWidth);
-    this.width = Math.max(this.width, data.minWidth);
+    this.canvas.style.width = "100%";
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+  }
 
-    // this.height = data.maxHeight;
-    this.height = Math.floor(this.width * data.realHeight / data.realWidth);
-    this.canvas.style.height = "100%";
-    console.log(this.width, this.height);
+  private clearCanvas() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+
+  private setEvents() {
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      this.snake.start(e.key as Key);
+    });
   }
 }
