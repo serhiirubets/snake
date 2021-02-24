@@ -1,0 +1,36 @@
+import { Board } from "./Board";
+import { Snake } from "./Snake";
+export declare class Game {
+    private canvas;
+    readonly ctx: CanvasRenderingContext2D;
+    sprites: Record<string, HTMLImageElement>;
+    private preloadedAssets;
+    private sounds;
+    board: Board;
+    snake: Snake;
+    width: number;
+    height: number;
+    private gameInterval;
+    private bombInterval;
+    private score;
+    constructor(canvas: HTMLCanvasElement);
+    private renderBackground;
+    private setUpAssets;
+    private preloadImageAssets;
+    private preloadAudioAssets;
+    private preloadAssets;
+    private preload;
+    private create;
+    private setFonts;
+    private render;
+    private run;
+    start(): void;
+    private fitWidth;
+    private fitHeight;
+    private initDimensions;
+    private clearCanvas;
+    private setEvents;
+    stop(): void;
+    onSnakeStart(): void;
+    onSnakeEat(): void;
+}
