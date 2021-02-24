@@ -19,9 +19,20 @@
       -moz-transform: translate(-50%, -50%);
       -webkit-transform: translate(-50%, -50%);
     }
+    @font-face {
+      font-family: 'Cocoai';
+      src: url("assets/fonts/cocoai.ttf")
+    }
+    .fontPreload {
+      font-family: 'Cocoai';
+      opacity: 0;
+      position: absolute;
+      left: -999px;
+    }
   </style>
 </head>
 <body>
+<div class="fontPreload">.</div>
 <canvas id="canvas"></canvas>
 </body>
 </html>

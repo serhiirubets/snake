@@ -1,5 +1,8 @@
+import {CellType} from "../../types";
+
 export class Cell {
-  hasFood = false;
+  type?: CellType;
+
   constructor(
     public x: number,
     public y: number,

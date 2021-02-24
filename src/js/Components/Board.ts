@@ -1,34 +1,48 @@
 import {Cell} from "./Cell";
 import {Game} from "./Game";
 import {getRandomInteger} from "../helpers";
-
+import {CellType} from "../../types";
 
 export class Board {
   private size = 15;
   public readonly cells: Cell[] = [];
 
-  constructor(private game: Game) {
-  }
+  constructor(private game: Game) {}
 
   public render() {
     this.cells.forEach(cell => {
       this.game.ctx.drawImage(this.game.sprites.cell, cell.x, cell.y);
-      if (cell.hasFood) {
-        this.game.ctx.drawImage(this.game.sprites.food, cell.x, cell.y);
+      if (cell.type) {
+        this.game.ctx.drawImage(this.game.sprites[cell.type], cell.x, cell.y);
       }
     });
   }
 
-  public createFood() {
-    const cellWithFood = this.cells.find(cell => cell.hasFood);
+  private getRandomAvailableCell() {
+    const pool = this.cells.filter(cell =>
+      !this.game.snake.hasCell(cell) &&
+      !cell.type
+    );
+    return pool[getRandomInteger(0, pool.length - 1)];
+  }
+
+  private createCellObject(type: CellType) {
+    const cellWithFood = this.cells.find(cell => cell.type === type);
 
     if (cellWithFood) {
-      cellWithFood.hasFood = false;
+      cellWithFood.type = undefined;
     }
 
-    const pool = this.cells.filter(cell => !this.game.snake.hasCell(cell));
-    const cell = pool[getRandomInteger(0, pool.length - 1)];
-    cell.hasFood = true;
+    const cell = this.getRandomAvailableCell();
+    cell.type = type;
+  }
+
+  public createFood() {
+    this.createCellObject(CellType.food)
+  }
+
+  public createBomb() {
+    this.createCellObject(CellType.bomb);
   }
 
   public create() {
@@ -52,6 +66,10 @@ export class Board {
   }
 
   isFoodCell(cell: Cell) {
-    return cell.hasFood;
+    return cell.type === CellType.food;
+  }
+
+  isBombCell(cell: Cell) {
+    return cell.type === CellType.bomb;
   }
 }

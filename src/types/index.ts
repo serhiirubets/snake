@@ -4,3 +4,8 @@ export enum Key {
   arrowUp = 'ArrowUp',
   arrowDown = 'ArrowDown',
 }
+
+export enum CellType {
+  bomb = 'bomb',
+  food = 'food',
+}

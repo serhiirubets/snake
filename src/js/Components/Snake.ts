@@ -26,21 +26,18 @@ const directions = {
 }
 
 export class Snake {
-  private moving = false;
+  moving = false;
   cells: Cell[] = [];
   direction = {row: 0, col: 0, angle: 0}
 
-  constructor(private game: Game) {
-  }
+  constructor(private game: Game) {}
 
   private renderHead() {
     const head = this.cells[0];
     const side = this.game.sprites.head.width / 2;
 
     this.game.ctx.save();
-
     this.game.ctx.translate(head.x + side, head.y + side);
-
     this.game.ctx.rotate(this.direction.angle * Math.PI / 180);
     this.game.ctx.drawImage(this.game.sprites.head, -side, -side);
     this.game.ctx.restore();
@@ -75,13 +72,15 @@ export class Snake {
     if (this.moving) {
       const cell = this.getNextCell();
 
-      if (cell) {
+      if (!cell || this.hasCell(cell) || this.game.board.isBombCell(cell)) {
+        this.game.stop();
+      } else {
         this.cells.unshift(cell);
 
         if (!this.game.board.isFoodCell(cell)) {
           this.cells.pop();
         } else {
-          this.game.board.createFood();
+          this.game.onSnakeEat();
         }
       }
     }
@@ -89,7 +88,6 @@ export class Snake {
 
   private getNextCell() {
     const head = this.cells[0];
-
     const row = head.row + this.direction.row;
     const col = head.col + this.direction.col
 
@@ -97,6 +95,10 @@ export class Snake {
   }
 
   public start(key: Key) {
+    if (!this.moving) {
+      this.game.onSnakeStart();
+    }
+
     this.moving = true;
 
     switch (key) {
@@ -113,7 +115,6 @@ export class Snake {
         this.direction = directions.up
         break;
     }
-
   }
 
   public hasCell(cell: Cell) {
